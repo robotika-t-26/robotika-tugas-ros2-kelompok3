@@ -4,12 +4,10 @@
 
 | Nama | NRP |
 |------|-----|
-| Nama Anggota 1 | NRP Anggota 1 |
-| Nama Anggota 2 | NRP Anggota 2 |
-| Nama Anggota 3 | NRP Anggota 3 |
-| Nama Anggota 4 | NRP Anggota 4 |
-| Nama Anggota 5 | NRP Anggota 5 |
-| Nama Anggota 6 (hapus jika tidak ada) | NRP Anggota 6 |
+| Athar Bakhtiar Aziz | 5025241136 |
+| Muhammad Akhdan Alwaafy  | 5025241223 |
+| Farras Abdurrazaq Ar-Rasyid | 5025241091 |
+| Farrel Hasudungan Immanuel Limbong | 5025241016 |
 
 ## Langkah Pengerjaan
 
