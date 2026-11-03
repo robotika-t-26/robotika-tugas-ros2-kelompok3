@@ -1,0 +1,12 @@
+# colcon (jika tidak sengaja build di dalam src)
+build/
+install/
+log/
+
+# Python
+__pycache__/
+*.pyc
+
+# Editor
+.vscode/
+.idea/
