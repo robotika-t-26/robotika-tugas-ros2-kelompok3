@@ -6,6 +6,7 @@ from geometry_msgs.msg import Twist
 from turtlesim.msg import Pose
 from turtlesim.srv import SetPen
 from turtlesim.action import RotateAbsolute
+from relay_interfaces.msg import RelayToken
 
 @dataclass
 class Point2d:
@@ -46,6 +47,9 @@ AREA_OFFSET_Y = 0
 class Relay1(Node):
     def __init__(self):
         super().__init__('relay1')
+
+        self.current_number = 1
+        
         self.pen_rgb = [100, 255, 210]
 
         self.cmd_vel_pub = self.create_publisher(Twist, '/turtle1/cmd_vel', 10)
@@ -56,15 +60,14 @@ class Relay1(Node):
             self.get_logger().info('Waiting for /turtle1/set_pen service...')
         self.set_pen_req = SetPen.Request()
         self.set_pen_req.r, self.set_pen_req.g, self.set_pen_req.b = self.pen_rgb
-        
     def turtlesim_pose_callback(self, msg : Pose):
         self.pose = msg
-    def send_set_pen(self, off : bool):
+    def set_pen(self, off : bool):
         self.set_pen_req.off = off
         future = self.set_pen_client.call_async(self.set_pen_req)
         rclpy.spin_until_future_complete(self, future)
         return future.result()
-
+    
 
 
 def main(args = None):
