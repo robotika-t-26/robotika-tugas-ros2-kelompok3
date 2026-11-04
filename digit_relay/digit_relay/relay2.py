@@ -102,9 +102,10 @@ class Relay2(Node):
         self.set_pen(off=1)
         time.sleep(0.1)
 
-    def run_turn(self):
+        def run_turn(self):
         if self.active_member == self.node_id and not self.busy:
             self.busy = True
+            self.active_member = 0
             self.get_logger().info(f'Relay2 mulai menggambar angka {self.current_number}...')
             
             self.draw_digit(self.current_number)
