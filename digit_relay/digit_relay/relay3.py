@@ -1,7 +1,7 @@
 import rclpy
 from rclpy.node import Node
 from geometry_msgs.msg import Twist
-from std_msgs.msg import Int32MultiArray
+from relay_interfaces.msg import RelayToken
 from turtlesim.srv import SetPen, TeleportAbsolute
 import time
 
@@ -15,9 +15,9 @@ class relay3(Node):
         self.current_number = 0
 
         self.cmd_pub = self.create_publisher(Twist, '/turtle1/cmd_vel', 10)
-        self.turn_pub = self.create_publisher(Int32MultiArray, '/turn_status', 10)
+        self.turn_pub = self.create_publisher(RelayToken, '/turn_status', 10)
         self.turn_sub = self.create_subscription(
-            Int32MultiArray, 
+            RelayToken, 
             '/turn_status', 
             self.turn_callback, 
             10
@@ -29,10 +29,9 @@ class relay3(Node):
         self.busy = False
         self.timer = self.create_timer(0.5, self.run_turn)
 
-    def turn_callback(self, msg: Int32MultiArray):
-        if len(msg.data) >= 2:
-            self.active_member = msg.data[0]
-            self.current_number = msg.data[1]
+    def turn_callback(self, msg: RelayToken):
+        self.active_member = msg.active_member
+        self.current_number = msg.current_number
 
     def set_pen(self, off=0, r=0, g=255, b=0, width=4):
         if not self.pen_client.service_is_ready():
@@ -72,42 +71,41 @@ class relay3(Node):
         time.sleep(0.05)
 
     def draw_digit(self, num):
-            self.set_pen(off=1)
-            time.sleep(0.1) 
+        self.set_pen(off=1)
+        time.sleep(0.1)
 
-            if num == 3:
+        if num == 3:
+            self.teleport_to(x=1.0, y=4.5, theta=0.0)
+            self.set_pen(off=0, r=0, g=255, b=0, width=4)
+            self.drive_straight(speed=1.5, duration=0.8)
 
-                self.teleport_to(x=1.0, y=4.5, theta=0.0)
-                self.set_pen(off=0, r=0, g=255, b=0, width=4)
-                self.drive_straight(speed=1.5, duration=0.8)
+            self.teleport_to(x=2.2, y=4.5, theta=-1.5708)
+            self.set_pen(off=0, r=0, g=255, b=0, width=4)
+            self.drive_straight(speed=1.5, duration=0.8)
 
-                self.teleport_to(x=2.2, y=4.5, theta=-1.5708)
-                self.set_pen(off=0, r=0, g=255, b=0, width=4)
-                self.drive_straight(speed=1.5, duration=0.8)
+            self.teleport_to(x=2.2, y=3.3, theta=3.14159)
+            self.set_pen(off=0, r=0, g=255, b=0, width=4)
+            self.drive_straight(speed=1.5, duration=0.8)
 
-                self.teleport_to(x=2.2, y=3.3, theta=3.14159)
-                self.set_pen(off=0, r=0, g=255, b=0, width=4)
-                self.drive_straight(speed=1.5, duration=0.8)
+            self.teleport_to(x=2.2, y=3.3, theta=-1.5708)
+            self.set_pen(off=0, r=0, g=255, b=0, width=4)
+            self.drive_straight(speed=1.5, duration=0.8)
 
-                self.teleport_to(x=2.2, y=3.3, theta=-1.5708)
-                self.set_pen(off=0, r=0, g=255, b=0, width=4)
-                self.drive_straight(speed=1.5, duration=0.8)
+            self.teleport_to(x=2.2, y=2.1, theta=3.14159)
+            self.set_pen(off=0, r=0, g=255, b=0, width=4)
+            self.drive_straight(speed=1.5, duration=0.8)
 
-                self.teleport_to(x=2.2, y=2.1, theta=3.14159)
-                self.set_pen(off=0, r=0, g=255, b=0, width=4)
-                self.drive_straight(speed=1.5, duration=0.8)
+        elif num == 7:
+            self.teleport_to(x=3.5, y=4.5, theta=0.0)
+            self.set_pen(off=0, r=0, g=255, b=0, width=4)
+            self.drive_straight(speed=1.5, duration=0.8)
 
-            elif num == 7: 
-                self.teleport_to(x=3.5, y=4.5, theta=0.0)
-                self.set_pen(off=0, r=0, g=255, b=0, width=4)
-                self.drive_straight(speed=1.5, duration=0.8)
+            self.teleport_to(x=4.7, y=4.5, theta=-1.5708)
+            self.set_pen(off=0, r=0, g=255, b=0, width=4)
+            self.drive_straight(speed=1.5, duration=1.6)
 
-                self.teleport_to(x=4.7, y=4.5, theta=-1.5708)
-                self.set_pen(off=0, r=0, g=255, b=0, width=4)
-                self.drive_straight(speed=1.5, duration=1.6)
-
-            self.set_pen(off=1)
-            time.sleep(0.1)
+        self.set_pen(off=1)
+        time.sleep(0.1)
 
     def run_turn(self):
         if self.active_member == self.node_id and not self.busy:
@@ -115,12 +113,13 @@ class relay3(Node):
             
             self.draw_digit(self.current_number)
 
-            next_msg = Int32MultiArray()
-            next_msg.data = [4, self.current_number + 1]
+            next_msg = RelayToken()
+            next_msg.active_member = 4
+            next_msg.current_number = self.current_number + 1
             self.turn_pub.publish(next_msg)
 
             self.get_logger().info(
-                f'Next {self.current_number + 1})'
+                f'Next {next_msg.current_number})'
             )
             self.busy = False
 
