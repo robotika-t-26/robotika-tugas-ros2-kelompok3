@@ -96,11 +96,11 @@ class relay3(Node):
             self.drive_straight(speed=1.5, duration=0.8)
 
         elif num == 7:
-            self.teleport_to(x=3.5, y=4.5, theta=0.0)
+            self.teleport_to(x=1.0, y=4.5, theta=0.0)
             self.set_pen(off=0, r=0, g=255, b=0, width=4)
             self.drive_straight(speed=1.5, duration=0.8)
 
-            self.teleport_to(x=4.7, y=4.5, theta=-1.5708)
+            self.teleport_to(x=2.2, y=4.5, theta=-1.5708)
             self.set_pen(off=0, r=0, g=255, b=0, width=4)
             self.drive_straight(speed=1.5, duration=1.6)
 
@@ -110,6 +110,7 @@ class relay3(Node):
     def run_turn(self):
         if self.active_member == self.node_id and not self.busy:
             self.busy = True
+            self.active_member = 0
             
             self.draw_digit(self.current_number)
 
