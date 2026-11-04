@@ -29,7 +29,7 @@ class Relay2(Node):
         self.active_member = msg.active_member
         self.current_number = msg.current_number
 
-    def set_pen(self, off=0, r=0, g=120, b=255, width=4):
+        def set_pen(self, off=0, r=0, g=120, b=255, width=4):
         if not self.pen_client.service_is_ready():
             return
         req = SetPen.Request()
@@ -39,6 +39,7 @@ class Relay2(Node):
         req.width = int(width)
         req.off = int(off)
         self.pen_client.call_async(req)
+        time.sleep(0.1)
 
     def teleport_to(self, x: float, y: float, theta: float = 0.0):
         if not self.teleport_client.service_is_ready():
