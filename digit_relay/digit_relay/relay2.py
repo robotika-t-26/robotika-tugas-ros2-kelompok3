@@ -29,7 +29,7 @@ class Relay2(Node):
         self.active_member = msg.active_member
         self.current_number = msg.current_number
 
-        def set_pen(self, off=0, r=0, g=120, b=255, width=4):
+    def set_pen(self, off=0, r=0, g=120, b=255, width=4):
         if not self.pen_client.service_is_ready():
             return
         req = SetPen.Request()
@@ -100,10 +100,11 @@ class Relay2(Node):
             
             self.teleport_to(x=4.7, y=3.3, theta=3.14159)
             self.drive_straight(speed=1.5, duration=0.8)
+
         self.set_pen(off=1)
         time.sleep(0.1)
 
-        def run_turn(self):
+    def run_turn(self):
         if self.active_member == self.node_id and not self.busy:
             self.busy = True
             self.active_member = 0
