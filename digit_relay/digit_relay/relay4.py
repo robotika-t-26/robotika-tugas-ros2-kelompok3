@@ -2,7 +2,7 @@ import rclpy
 from rclpy.node import Node
 from geometry_msgs.msg import Twist
 from relay_interfaces.msg import RelayToken
-from turtlesim_msgs.srv import SetPen, TeleportAbsolute
+from turtlesim.srv import SetPen, TeleportAbsolute
 import time
 
 class Relay4(Node):

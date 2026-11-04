@@ -55,7 +55,7 @@ digit_paths_scaled : list[list[Point2d]] = []
 for path in digit_paths_unit:
     scaled_path = []
     for point in path:
-        scaled_path.append(Point2d(point.x * AREA_WIDTH + AREA_OFFSET_X, point.y * AREA_HEIGHT + AREA_OFFSET_Y))
+        scaled_path.append(Point2d(point.x * AREA_WIDTH + AREA_OFFSET_X, AREA_HEIGHT*2 - (point.y * AREA_HEIGHT + AREA_OFFSET_Y)))
     digit_paths_scaled.append(scaled_path)
 
 
@@ -69,9 +69,10 @@ class Relay1(Node):
 
         self.active_member = 1
         self.current_number = 1
-        self.draw_line_duration = 0.5
+        self.draw_line_duration = 1
         
         self.pen_rgb = [100, 255, 210]
+        self.pen_width = 2
         
         self.turn_pub = self.create_publisher(RelayToken, '/turn_status', 10)
         init_turn_msg = RelayToken()
@@ -86,8 +87,8 @@ class Relay1(Node):
         )
 
         self.cmd_vel_pub = self.create_publisher(Twist, '/turtle1/cmd_vel', 10)
+        pose_success, self.pose = wait_for_message(Pose, self, '/turtle1/pose', time_to_wait=-1)
         self.pose_sub = self.create_subscription(Pose, '/turtle1/pose', self.turtlesim_pose_callback, 10);
-        self.pose : Pose | None = None
         self.clear_client = self.create_client(Empty, '/clear')
         while not self.clear_client.wait_for_service(timeout_sec=1.0):
             self.get_logger().info('Waiting for /clear service...')
@@ -101,13 +102,16 @@ class Relay1(Node):
         self.clear_req = Empty.Request()
         self.set_pen_req = SetPen.Request()
         self.set_pen_req.r, self.set_pen_req.g, self.set_pen_req.b = self.pen_rgb
+        self.set_pen_req.width = self.pen_width
         self.timer = self.create_timer(0.1, self.run_turn)
+        
 
     def request_clear(self):
-        self.future = self.clear_client.call_async(self.clear_req)
+        future = self.clear_client.call_async(self.clear_req)
     def teleport_to(self, x: float, y: float, theta: float = 0.0):
             if not self.teleport_client.service_is_ready():
                 return
+
             req = TeleportAbsolute.Request()
             req.x = x
             req.y = y
@@ -122,45 +126,45 @@ class Relay1(Node):
             raise CycleFinish
         self.active_member = msg.active_member
         self.current_number = msg.current_number
+        if self.active_member == self.node_id:
+            self.busy = False
 
     def turtlesim_pose_callback(self, msg : Pose):
         self.pose = msg
 
     def set_pen(self, off : bool):
         self.set_pen_req.off = off
-        self.future = self.set_pen_client.call_async(self.set_pen_req)
-        rclpy.spin_until_future_complete(self, self.future)
-        return self.future.result()
+        future = self.set_pen_client.call_async(self.set_pen_req)
+        time.sleep(0.1)
+        return future.result()
     
-    def drive_straight_to(self, x: float, y: float):
-        if self.pose == None:
-            self.get_logger().info(f'Pose not obtained')
-            return
-        twist_msg = Twist()
-        angle = math.atan2(self.pose.x - x, self.pose.y - y)
-        self.teleport_to(self.pose.x, self.pose.y, angle)
-        distance = math.hypot(self.pose.x - x, self.pose.y - y)
-        twist_msg.linear.x = distance / self.draw_line_duration
-
-        end_time = time.time() + self.draw_line_duration
-        while time.time() < end_time:
-            self.cmd_vel_pub.publish(twist_msg)
+    def drive_straight(self, speed, duration):
+            msg = Twist()
+            msg.linear.x = float(speed)
+            msg.angular.z = 0.0
+            end_time = time.time() + duration
+            while time.time() < end_time:
+                self.cmd_vel_pub.publish(msg)
+                time.sleep(0.05)
+            msg.linear.x = 0.0
+            self.cmd_vel_pub.publish(msg)
             time.sleep(0.05)
-        twist_msg.linear.x = 0.0
-        self.cmd_pub.publish(twist_msg)
-        time.sleep(0.05)
 
     def draw_digit(self, digit):
-        if digit > 9 or digit < 0:
-            return
         self.set_pen(off=True)
-        self.drive_straight_to(AREA_WIDTH/2 + AREA_OFFSET_X, AREA_HEIGHT/2 + AREA_OFFSET_Y)
+        path = digit_paths_scaled[digit]
+        if len(path) == 0:
+            return
+        self.teleport_to(path[0].x, path[0].y)
+        self.teleport_to(path[0].x, path[0].y)
+
         self.set_pen(off=False)
-        used_list = digit_paths_scaled[digit]
-        for point in used_list:
-            self.drive_straight_to(point.x, point.y)
-
-
+        for i in range(1, len(path)):
+            angle = math.atan2(path[i-1].x - path[i].x, path[i-1].y - path[i].y) - 1.5708
+            distance = math.hypot(path[i].x - path[i-1].x, path[i].y - path[i-1].y)
+            speed = distance / self.draw_line_duration
+            self.teleport_to(path[i-1].x, path[i-1].y, angle)
+            self.drive_straight(speed, self.draw_line_duration)
 
     def run_turn(self):
         if self.active_member == self.node_id and not self.busy:
@@ -176,7 +180,7 @@ class Relay1(Node):
 
             self.get_logger().info(f'Relay1 selesai. Oper giliran ke Anggota 2 (angka {next_msg.current_number}).')
 
-            self.busy = False
+            
     
 
 
