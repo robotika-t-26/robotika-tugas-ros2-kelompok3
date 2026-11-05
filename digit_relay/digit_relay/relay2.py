@@ -68,37 +68,37 @@ class Relay2(Node):
         time.sleep(0.1)
 
         if num == 2:
-            self.teleport_to(x=3.5, y=9.0, theta=0.0)
+            self.teleport_to(x=6.5, y=9.0, theta=0.0)
             self.set_pen(off=0, r=0, g=120, b=255, width=4)
             self.drive_straight(speed=1.5, duration=0.8)
             
-            self.teleport_to(x=4.7, y=9.0, theta=-1.5708)
+            self.teleport_to(x=7.7, y=9.0, theta=-1.5708)
             self.drive_straight(speed=1.5, duration=0.8)
             
-            self.teleport_to(x=4.7, y=7.8, theta=3.14159)
+            self.teleport_to(x=7.7, y=7.8, theta=3.14159)
             self.drive_straight(speed=1.5, duration=0.8)
             
-            self.teleport_to(x=3.5, y=7.8, theta=-1.5708)
+            self.teleport_to(x=6.5, y=7.8, theta=-1.5708)
             self.drive_straight(speed=1.5, duration=0.8)
             
-            self.teleport_to(x=3.5, y=6.6, theta=0.0)
+            self.teleport_to(x=6.5, y=6.6, theta=0.0)
             self.drive_straight(speed=1.5, duration=0.8)
 
         elif num == 6:
-            self.teleport_to(x=4.7, y=9.0, theta=3.14159)
+            self.teleport_to(x=7.7, y=9.0, theta=3.14159)
             self.set_pen(off=0, r=0, g=120, b=255, width=4)
             self.drive_straight(speed=1.5, duration=0.8)
             
-            self.teleport_to(x=3.5, y=9.0, theta=-1.5708)
+            self.teleport_to(x=6.5, y=9.0, theta=-1.5708)
             self.drive_straight(speed=1.5, duration=1.6)
             
-            self.teleport_to(x=3.5, y=6.6, theta=0.0)
+            self.teleport_to(x=6.5, y=6.6, theta=0.0)
             self.drive_straight(speed=1.5, duration=0.8)
             
-            self.teleport_to(x=4.7, y=6.6, theta=1.5708)
+            self.teleport_to(x=7.7, y=6.6, theta=1.5708)
             self.drive_straight(speed=1.5, duration=0.8)
             
-            self.teleport_to(x=4.7, y=7.8, theta=3.14159)
+            self.teleport_to(x=7.7, y=7.8, theta=3.14159)
             self.drive_straight(speed=1.5, duration=0.8)
 
         self.set_pen(off=1)
