@@ -160,7 +160,7 @@ class Relay1(Node):
 
         self.set_pen(off=False)
         for i in range(1, len(path)):
-            angle = math.atan2(path[i-1].x - path[i].x, path[i-1].y - path[i].y) - 1.5708
+            angle = -math.atan2(path[i].x - path[i-1].x , path[i].y - path[i-1].y) + 1.5708
             distance = math.hypot(path[i].x - path[i-1].x, path[i].y - path[i-1].y)
             speed = distance / self.draw_line_duration
             self.teleport_to(path[i-1].x, path[i-1].y, angle)
